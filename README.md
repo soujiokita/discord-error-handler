@@ -9,7 +9,6 @@ A lightweight managing package,which catches and save discord errors. Intelligen
 You can download it from npm:
 ```cli
 npm i discord-error-handler
-npm i mongoose  // when u did not installed it
 ```
 
 # Setting Up

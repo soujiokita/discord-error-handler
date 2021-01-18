@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+//const mongoose = require("mongoose");
 const serverset = require("./models/schema.js");
 const Discord = require("Discord.js")
 class handling {
