@@ -4,9 +4,9 @@ const reactionSchema = new mongoose.Schema({
   
   guildid: { type: String },
   msgid: { type: String},
-  roleid: { type: String},
-  reaction: { type: String }, /// Change the field name | add other Fields, do not forget the "," ;)
-  dm: {type: Boolean }
+  error: { type: String},
+  content: { type: String }, /// Change the field name | add other Fields, do not forget the "," ;)
+  count: {type:  String }
 });
 
 module.exports = mongoose.model('reaction', reactionSchema);

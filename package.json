@@ -1,7 +1,7 @@
 {
-  "name": "mongodb-reaction-role",
-  "version": "1.0.6",
-  "description": "A lightweight and easy to use db managing package to give roles with reactions",
+  "name": "discord-error-handler",
+  "version": "1.1.0",
+  "description": "A lightweight and easy to use  managing package for errors",
   "main": "index.js",
   "dependencies": {
     "mongoose": "^5.7.1"
@@ -9,7 +9,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meister03/mongodb-reaction-role.git"
+    "url": "git+https://github.com/meister03/discord-error-handler.git"
   },
 
   "keywords": [
@@ -18,8 +18,8 @@
     "intelligent saving",
     "bot",
     "bots",
-    "reaction roles",
-    "reaction",
+    "error",
+    "error saving",
     "mongo",
     "mongoose",
     "mongodb",
@@ -29,7 +29,7 @@
   "author": "meister03",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/meister03/mongodb-reaction-role/issues"
+    "url": "https://github.com/meister03/discord-error-handler/issues"
   },
-  "homepage": "https://github.com/meister03/mongodb-reaction-role#readme"
+  "homepage": "https://github.com/meister03/discord-error-handler#readme"
 }

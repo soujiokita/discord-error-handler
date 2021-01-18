@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const serverset = require("./models/schema.js");
-
-class react {
+const Discord = require("Discord.js")
+class handling {
 
   /**
   * @param {string} [dbUrl] - A valid mongo database URI.
@@ -19,149 +19,97 @@ class react {
   /**
   * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
   * @param {string} [guildId] - Discord guild id.
-  * @param {string} [msgid] - on which should the reaction roles be.
-  * @param {string} [roleid] - Discord guild id.
-  * @param {string} [emoji] - on which emoji u would get the role
-  * @param {Boolean} [dm] - Discord guild id.
+  * @param {string} [msg] - the messsage which caused the error
+  * @param {string} [errorr] - the error
   */
 
-  static async createrr(client, guildId, msgid, roleid ,emoji , dm) {
+  static async createrr(client, guildId, msg, errorr) {
     if (!client) throw new TypeError("An client was not provided.");
-    if (!guildId) throw new TypeError("A guild id was not provided.");
-    if (!msgid) throw new TypeError("A message id was not provided.");
-    if (!emoji) throw new TypeError("A reaction/emoji was not provided.");
-    if(!roleid) throw new TypeError("A role id was not provided.");
-    dm = dm ? dm : false ; // when dm is undefined // if they should get a message , when they get the role
-    const issame = await serverset.findOne({guildid: guildId , msgid: msgid , reaction: emoji , roleid: roleid});
-    if (issame) return false;
-
-    const newRR = new serverset({
-      guildid: guildId, 
-      msgid: msgid, 
-      reaction: emoji , 
-      roleid: roleid,
-      dm: dm
-    });
-
-    await newRR.save().catch(e => console.log(`Failed to create reaction role: ${e}`));
-    client.react.set(msgid+emoji, { ///this saves the msgid in a map to prevent a fetch
-      guildid: guildId,
-      msgid: msgid, 
-      reaction: emoji , 
-      roleid: roleid,
-      dm: dm
-    });
-    return newRR;
+    if (!errorr) throw new TypeError("An errorr was not provided.");
+    const clean = text => {// is afunction
+      text = String(text);//strings the function
+      let searched = text.split('\n');//splits by /n
+      return searched[0];// returns the splited array
   }
-
-  /**
-  * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
-  * @param {string} [guildId] - Discord guild id.
-  * @param {string} [msgid] - on which should the reaction roles be.
-  * @param {string} [emoji] - on which emoji u would get the role
-  */
-
-  static async deleterr(client, guildId , msgid, emoji) {
-    if (!client) throw new TypeError("An client was not provided.");
-    if (!guildId) throw new TypeError("A guild id was not provided.");
-    if (!msgid) throw new TypeError("A message id was not provided.");
-    if (!emoji) throw new TypeError("A reaction/emoji was not provided.");
-  
-    
-    const reactionRole = await serverset.findOne({guildid: guildId , msgid: msgid , reaction: emoji  });
-    if (!reactionRole) return false;
-
-    await serverset.findOneAndDelete({guildid: guildId , msgid: msgid , reaction: emoji }).catch(e => console.log(`Failed to reaction: ${e}`));
-    
-     client.react.delete(msgid+emoji);
-    
+  let cleaned = clean(errorr);
+        if (client.error.has(cleaned)){
+        client.error.set(cleaned, { ///this saves the error in a map, to prevent multipy errors
+        guildid: guildId,
+        msg: msg, 
+        error: cleaned , 
+        count: client.error.get(cleaned).count +1,
+        date: Date.now(),
+        msgid: client.error.get(cleaned).msgid
+      });
      
-    return reactionRole;
-    
-  }
+    }else{
+      if(client.error.has("allerrors")){
+        let allerrors = client.error.get("allerrors").allerrors
+        allerrors.push(cleaned)
+      client.error.set("allerrors", {
+      allerrors: allerrors,
+      })
+    }else{
+      client.error.set("allerrors", {
+        allerrors: [cleaned],
+        })
+   }
 
-  /**
-  * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
-  * @param {string} [guildId] - Discord guild id.
-  * @param {string} [msgid] - on which should the reaction roles be.
-  * @param {string} [newroleid] - Discord guild id.
-  * @param {string} [emoji] - on which emoji u would get the role
-  */
-
-  static async editrr(client, guildId , msgid, newroleid , emoji) {
-    if (!client) throw new TypeError("An client was not provided.");
-    if (!guildId) throw new TypeError("A guild id was not provided.");
-    if (!msgid) throw new TypeError("A message id was not provided.");
-    if (!emoji) throw new TypeError("A reaction/emoji was not provided.");
-    if(!newroleid) throw new TypeError("A role id was not provided.");
-
-    const reactionRole = await serverset.findOne({guildid: guildId , msgid: msgid , reaction: emoji  });
-    if (!reactionRole) return false;
-    reactionRole.roleid= newroleid;
-
-    await reactionRole.save().catch(e => console.log(`Failed to save new prefix: ${e}`) );
-    client.react.set(msgid+emoji, { ///this saves the msgid in a map to prevent a fetch
-      guildid: guildId,
-      msgid: msgid, 
-      reaction: emoji , 
-      roleid: newroleid,
-      dm: reactionRole.dm
-    });
+    let log = new  Discord.MessageEmbed();
+    log.setTitle("New Error Entcounterd!")
+    if(msg){
+    log.addField(`On message in ${guildId}:` ,"```" +  msg +"```")
+    }
+    log.addField("Error", "```" + cleaned +"```" )
+    log.setColor("RED")
+    log.setTimestamp();
+    let servermessage;
+    if(client.shard){
+    servermessage = await client.shard.broadcastEval(`this.channels.cache.has("${client.logchannel[1]}") ? this.channels.cache.get("${client.logchannel[1]}").send({
+        embed: ${JSON.stringify(log.toJSON())}}) : null`).catch(err => console.error(err))
+    }else{
+     let channel = await client.channels.cache.get(client.logchannel[1]);
+      servermessage = await channel.send({embed: log}).catch(err => console.error(err))
+    }
+    client.error.set(cleaned, { ///this saves the msgid in a map to prevent a fetch
+        guildid: guildId,
+        msg: msg, 
+        error: cleaned, 
+        count: 1,
+        date: Date.now(),
+        msgid: servermessage.id
+      });
+    }
     return;
   }
-
   /**
+  * @param {object} [message] - Discord message parameter to send the message;
   * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
-  * @param {string} [guildId] - Discord guild id.
-* @param {string} [msgid] - Discord guild id.
- * @param {string} [emoji] - Discord guild id.
   */
-
-  static async fetchrr(client, guildId ,msgid , emoji) {
-    if (!client) throw new TypeError("An client was not provided.");
-    if (!guildId) throw new TypeError("A guild id was not provided.");
-    if(!client.fetchforguild.has(guildId)){
-    let allrole = await serverset.find({guildid: guildId}).sort([['guildid', 'descending']]).exec();
-    let i = 0;
-    for(i ; i < Object.keys(allrole).length; i++){
-    await  client.react.set(allrole[i].msgid+allrole[i].reaction, { ///this saves the msgid in a map to prevent a fetch
-        guildid: allrole[i].guildid,
-        msgid: allrole[i].msgid, 
-        reaction: allrole[i].reaction , 
-        roleid: allrole[i].roleid,
-        dm: allrole[i].dm
-      }); 
-    }
-    client.fetchforguild.set(guildId, { ///this saves the msgid in a map to prevent a fetch
-      guildid: guildId,
-      totalreactions: Object.keys(allrole).length
-    });
+   static async report(client,message) {
+  if (!message || !client) throw new TypeError("A client or message was not provided.");
+  let allerror = [];
+  let count = 0;
+  let i;
+  if(client.error.has("allerrors")){
+    
+  for(i = 0; i < client.error.get("allerrors").allerrors.length ; i++){
+    let errorr = client.error.get(client.error.get("allerrors").allerrors[i])
+    allerror.push(`**[${errorr.error}](https://discord.com/channels/${client.logchannel[0]}/${client.logchannel[1]}/${errorr.msgid})** - **${errorr.count} **`)
+    count = count + errorr.count;
   }
-    return client.react.get(msgid + emoji); 
   }
-
-/**
-* @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
-*/
-static async fetchallrr(client) {
-    if (!client) throw new TypeError("An client was not provided.");
-    let all = await serverset.find({}).sort([['guildid', 'descending']]).exec();
- 
- /*   let i = 0;
-    for(i ; i < Object.keys(all).length; i++){
-      client.react.set(all[i].msgid+all[i].reaction, { ///this saves the msgid in a map to prevent a fetch
-        guildid: all[i].guildid,
-        msgid: all[i].msgid, 
-        reaction: all[i].reaction , 
-        roleid: all[i].roleid,
-        dm: all[i].dm
-      }); 
-    }*/
-   
-    return all; 
-  }
-
+  if(!allerror[0]) allerror.push("No Errors have been found!");
+  let report = new Discord.MessageEmbed();
+  report.setTitle("Error Message - Count");
+  report.setDescription("```" + i + " Errors happend " + count +" times" + "```\n" + allerror.join("\n"));
+  report.setFooter("Requested by: " + message.author.tag , message.author.displayAvatarURL());
+  report.setTimestamp();
+  report.setColor("YELLOW");
+  message.channel.send({embed :report});
+  return;
+}
 
 }
 
-module.exports = react;
+module.exports = handling;
