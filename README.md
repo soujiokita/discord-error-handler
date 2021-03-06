@@ -4,6 +4,8 @@
 # Discord-error-handler
 A lightweight managing package,which catches and save discord errors. Intelligent saving ways and good interface. Find every Bug in your Code!
 
+**Can just be used with discord.js-light!**
+
 **If you need help feel free to join our <a href="https://discord.gg/YTdNBHh ">discord server</a>. We will provied you all help ☺**
 # Download
 You can download it from npm:
@@ -17,7 +19,6 @@ First we include the module into the project (into your main bot file).
 const handle = require("discord-error-handler");
 const client = new Discord.Client();
 client.error = new Map();  // do not rename here something, or else Dx 
-client.error = new Map(); 
 client.logchannel = [ "Guild_id_of_error_log_channel","channelid_of_error_log_channel"] ;
 ```
 # Saving/ Logging Erorrs
@@ -44,6 +45,11 @@ if(message.content === "!report") return handle.report(client , message);
 process.on('unhandledRejection', error => { 
 handle.createrr(client,undefined, undefined, error)
 });
+```
+# Get Status of each Shards
+```
+//This Codes is just for sharded bots
+if(message.content === "!status") return client.handle.status(client , message);
 ```
 # Whole Code
 ```js
@@ -79,4 +85,4 @@ handle.createrr(client,undefined, undefined, error)
 **Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667**
 
 # Bugs, Glitches and Issues
-If you encounter any problems fell free to open an issue in our <a href="https://github.com/meister03/discord-error-handler/issues">github repository or join the discord server.</a>.
+If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-error-handler/issues">github repository or join the discord server.</a>.

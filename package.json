@@ -1,6 +1,6 @@
 {
   "name": "discord-error-handler",
-  "version": "1.1.0",
+  "version": "1.1.9",
   "description": "A lightweight and easy to use  managing package for errors",
   "main": "index.js",
   "dependencies": {
@@ -17,6 +17,10 @@
     "discord.js",
     "intelligent saving",
     "bot",
+    "discord-error-handler",
+    "discord-errorr",
+    "error-discord",
+    "manage-error",  
     "bots",
     "error",
     "error saving",
