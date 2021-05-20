@@ -27,10 +27,10 @@ const handle  = new Errorhandler(client, {
 
 ```js
 client.on('message', async message => {
-	try{
+try{
     if(message.author.bot) return;
     if(message.content === "!notwork") return message.chanel.send("ddd"); 
-    
+
     // the error here is "chanel" , the right thing would be "channel" ==> this will now send a message in the log channel.
     //When the error happens again. It will not send the error again 
   }catch(error){
