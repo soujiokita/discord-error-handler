@@ -1,21 +1,13 @@
-const mongoose = require("mongoose");
-const serverset = require("./models/schema.js");
-const Discord = require("discord.js-light")
+const Discord = require("discord.js")
 class handling {
-
-  /**
-  * @param {string} [dbUrl] - A valid mongo database URI.
-  */
-
-  static async setURL(dbUrl) {
-    if (!dbUrl) throw new TypeError("A database url was not provided.");
-    
-    return mongoose.connect(dbUrl, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+  constructor(client, options = {}){
+    this.client = client;
+    this.webhook = (options.webhook? new Discord.WebhookClient(options.webhook.id, options.webhook.token) : false);
+    this.stats = options.stats || false;
+    if(!this.client) throw new Error('Discord_Client_not_provided', 'missing', 'specified.');
+    if(!this.webhook) throw new Error('Webhook_Token_or_Id_not_provided', 'missing', 'specified.');
+    this.client.error = new Map();
   }
-
   /**
   * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
   * @param {string} [guildId] - Discord guild id.
@@ -23,63 +15,64 @@ class handling {
   * @param {string} [errorr] - the error
   */
 
-  static async createrr(client, guildId, msg, errorr) {
+  async createrr(client, guildId, msg, errorr) {
     if (!client) throw new TypeError("An client was not provided.");
     if (!errorr) throw new TypeError("An errorr was not provided.");
-    const clean = text => {// is afunction
-      text = String(text);//strings the function
-      let searched = text.split('\n');//splits by /n
-      return searched[0];// returns the splited array
-  }
-  let cleaned = clean(errorr);
+    if(!this.webhook) throw new TypeError("You did not added a webhook id or a token in the options");
+    const clean = text => {                 // is a function
+      text = String(text);                 //strings the function
+      let searched = text.split('\n');    //splits by /n
+      return searched[0];                // returns the splited array
+    }
+    let cleaned = clean(errorr);
         if (client.error.has(cleaned)){
         client.error.set(cleaned, { ///this saves the error in a map, to prevent multipy errors
         guildid: guildId,
         msg: msg, 
-        stack: error.stack,
+        stack: errorr.stack,
         error: cleaned , 
         count: client.error.get(cleaned).count +1,
         date: Date.now(),
-        msgid: client.error.get(cleaned).msgid
+        msgid: client.error.get(cleaned).msgid,
+        channelid: client.error.get(cleaned).channelid,
+
       });
      
     }else{
       if(client.error.has("allerrors")){
         let allerrors = client.error.get("allerrors").allerrors
         allerrors.push(cleaned)
-      client.error.set("allerrors", {
-      allerrors: allerrors,
-      })
-    }else{
-      client.error.set("allerrors", {
-        allerrors: [cleaned],
+        client.error.set("allerrors", {
+          allerrors: allerrors,
         })
-   }
-
-    let log = new  Discord.MessageEmbed();
-    log.setTitle("New Error Entcounterd!")
-    if(msg){
-    log.addField(`On message in ${guildId}:` ,"```" +  msg +"```")
-    }
-    log.addField("Error", "```" + smaller(cleaned ,200)+"\n" + smaller(error.stack,800 ) +"```" )
-    log.setColor("RED")
-    log.setTimestamp();
-    let servermessage;
-    if(client.shard){
-    servermessage = await client.channels.forge(client.logchannel[1]).send({embed: log})  /// u need discord js light 
     }else{
-     let channel = await client.channels.cache.get(client.logchannel[1]);
-      servermessage = await channel.send({embed: log}).catch(err => console.error(err))
-    }
-    console.log(error)
-    client.error.set(cleaned, { ///this saves the msgid in a map to prevent a fetch
+        client.error.set("allerrors", {
+            allerrors: [cleaned],
+        })
+     }
+
+      let log = new  Discord.MessageEmbed();
+      log.setTitle("New Error Entcounterd!")
+      if(msg){
+       log.addField(`On message in ${guildId}:` ,"```" +  msg +"```")
+      }
+      log.addField("Error", "```" +  smaller(errorr.stack,800 ) +"```" )
+      log.setColor("RED")
+      log.setTimestamp();
+
+  
+      const servermessage = await this.webhook.send({embeds: [log]});  
+      console.log(servermessage)
+      console.log(errorr)
+      client.error.set(cleaned, { ///this saves the msgid in a map to prevent a fetch
         guildid: guildId,
         msg: msg, 
         error: cleaned, 
         count: 1,
-        stack: error.stack,
+        stack: errorr.stack,
         date: Date.now(),
-        msgid: servermessage.id
+        msgid: servermessage.id,
+        channelid: servermessage.channel_id,
       });
     }
     return;
@@ -88,29 +81,29 @@ class handling {
   * @param {object} [message] - Discord message parameter to send the message;
   * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
   */
-   static async report(client,message) {
+   async report(client,message) {
     try{
-  if (!message || !client) throw new TypeError("A client or message was not provided.");
-  let allerror = [];
-  let count = 0;
-  let i;
-  if(client.error.has("allerrors")){
+      if (!message || !client) throw new TypeError("A client or message was not provided.");
+      let allerror = [];
+      let count = 0;
+      let i;
+      if(client.error.has("allerrors")){
     
-  for(i = 0; i < client.error.get("allerrors").allerrors.length ; i++){
-    let errorr = client.error.get(client.error.get("allerrors").allerrors[i])
-    allerror.push(`**[${errorr.error}](https://discord.com/channels/${client.logchannel[0]}/${client.logchannel[1]}/${errorr.msgid})** - **${errorr.count} **`)
-    count = count + errorr.count;
-  }
-  }
-  if(!allerror[0]) allerror.push("No Errors have been found!");
-  let report = new Discord.MessageEmbed();
-  report.setTitle("Error Message - Count");
-  report.setDescription("```" + i + " Errors happend " + count +" times" + "```\n" + allerror.join("\n"));
-  report.setFooter("Requested by: " + message.author.tag , message.author.displayAvatarURL());
-  report.setTimestamp();
-  report.setColor("YELLOW");
-  message.channel.send({embed: report});
-  return;
+      for(i = 0; i < client.error.get("allerrors").allerrors.length ; i++){
+        let errorr = client.error.get(client.error.get("allerrors").allerrors[i])
+        allerror.push(`**[${errorr.error}](https://discord.com/channels/${message.guild.id}/${errorr.channelid}/${errorr.msgid})** - **${errorr.count} **`)
+        count = count + errorr.count;
+      }
+    }
+    if(!allerror[0]) allerror.push("No Errors have been found!");
+    let report = new Discord.MessageEmbed();
+    report.setTitle("Error Message - Count");
+    report.setDescription("```" + i + " Errors happend " + count +" times" + "```\n" + smaller(allerror.join("\n"), 1800));
+    report.setFooter("Requested by: " + message.author.tag , message.author.displayAvatarURL());
+    report.setTimestamp();
+    report.setColor("YELLOW");
+    message.channel.send({embed: report});
+    return;
 }catch(error){
   console.log(error);
 }
@@ -119,9 +112,10 @@ class handling {
   * @param {object} [message] - Discord message parameter to send the message;
   * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
   */
-   static async status(client,message) {
+   async status(client,message) {
+
     if (!message || !client) throw new TypeError("A client or message was not provided.");
-    if(!client.shard) return console.log("This funtion is currenlty just availble for Sharding, commit to have it for normal bots")
+    if(!client.shard) return console.log("This funtion is currenlty just availble for Sharding!")
     let eachstatus = [];
     async function cpuUsageCompact(time) {
     let start = [process.hrtime(),process.cpuUsage()];
@@ -155,6 +149,7 @@ class handling {
     let milliseconds = elapsedTime[0][0] * 1000 + elapsedTime[0][1] / 1000000;
     let timings = elapsedCPU[0].user / 1000 + elapsedCPU[0].system / 1000;
     let percentage = 100 * timings / milliseconds;*/
+  
   }
 
 }
