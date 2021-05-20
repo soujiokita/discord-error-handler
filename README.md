@@ -27,7 +27,7 @@ const handle  = new Errorhandler(client, {
 
 ```js
 client.on('message', async message => {
-try{
+ try{
     if(message.author.bot) return;
     if(message.content === "!notwork") return message.chanel.send("ddd"); 
 
