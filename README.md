@@ -4,7 +4,6 @@
 # Discord-error-handler
 A lightweight managing package,which catches and save discord errors and even send daily bot reports. Intelligent saving ways and good interface. Find every Bug in your Code!
 
-# Can just be used with discord.js-light!
 
 **If you need help feel free to join our <a href="https://discord.gg/YTdNBHh ">discord server</a>. We will provied you all help ☺**
 # Download
