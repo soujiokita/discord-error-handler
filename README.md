@@ -28,22 +28,22 @@ const handle  = new Errorhandler(client, {
 ```js
 client.on('message', async message => {
 	try{
-  if (message.author.bot) return;
-if(message.content === "!notwork") return message.chanel.send("ddd"); // the error here is "chanel" , the right thing would be "channel" ==> this will now send a message in the log channel.
-//When the error happens again. It will not send the error again 
-}catch(error){
-handle.createrr(client, message.guild.id, message.content, error)
-}
+    if (message.author.bot) return;
+    if(message.content === "!notwork") return message.chanel.send("ddd"); // the error here is "chanel" , the right thing would be "channel" ==> this will now send a message in the log channel.
+    //When the error happens again. It will not send the error again 
+  }catch(error){
+    handle.createrr(client, message.guild.id, message.content, error)
+  }
 });
 ```
 # Get a Report of all Errors
 ```js
-if(message.content === "!report") return handle.report(client , message);
+if(message.content === "!report") return handle.report(client , message); 
 ```
 # Catch Unhandeld Error
 ```js
 process.on('unhandledRejection', error => { 
-handle.createrr(client,undefined, undefined, error)
+  handle.createrr(client,undefined, undefined, error)
 });
 ```
 # Get Status of each Shards
@@ -66,17 +66,17 @@ client.once('ready', () => {
 console.log('Ready! Logged in as ' + client.user.tag + " with Prefix: " + prefix);
 });
 client.on('message', async message => {
-try{
-if (message.author.bot) return;
-if(message.content === "!start") return message.chanel.send("ddd"); ///create a error
-if(message.content === "!report") return handle.report(client , message);
-}catch(error){
-handle.createrr(client, message.guild.id, message.content, error)
-}
+  try{
+    if (message.author.bot) return;
+    if(message.content === "!start") return message.chanel.send("ddd"); ///create a error
+    if(message.content === "!report") return handle.report(client , message);
+  }catch(error){  
+    handle.createrr(client, message.guild.id, message.content, error)
+  } 
 });
 client.login(token);
-process.on('unhandledRejection', error => { 
-handle.createrr(client,undefined, undefined, error)
+  process.on('unhandledRejection', error => { 
+  handle.createrr(client,undefined, undefined, error)
 });
 
 
