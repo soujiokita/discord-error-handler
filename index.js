@@ -62,7 +62,6 @@ class handling {
 
   
       const servermessage = await this.webhook.send({embeds: [log]});  
-      console.log(servermessage)
       console.log(errorr)
       client.error.set(cleaned, { ///this saves the msgid in a map to prevent a fetch
         guildid: guildId,
