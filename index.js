@@ -114,7 +114,7 @@ class handling {
    async status(client,message) {
 
     if (!message || !client) throw new TypeError("A client or message was not provided.");
-    if(!client.cluster) return console.log("This funtion is currenlty just availble for Sharding! (Using hybrid sharding lib)")
+    if(!client.shard || !client.cluster) return console.log("This funtion is currenlty just availble for Sharding!")
     let eachstatus = [];
     async function cpuUsageCompact(time) {
     let start = [process.hrtime(),process.cpuUsage()];
@@ -122,11 +122,22 @@ class handling {
     let elap = [process.hrtime(start[0]),process.cpuUsage(start[1])];
     return 100 * (elap[1].user / 1000 + elap[1].system / 1000) / (elap[0][0] * 1000 + elap[0][1] / 1000000);
     }
-    let forcpu = await client.cluster.broadcastEval(`${await cpuUsageCompact(100)}`)
-    let forram = await client.cluster.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`)
-    let forping =  await client.cluster.broadcastEval(`(this.ws.ping)`)
+    let forcpu;
+    let forram;
+    let forping;
+
+    if (client.shard) {
+        forcpu = await client.shard.broadcastEval(`${await cpuUsageCompact(100)}`)
+        forram = await client.shard.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`)
+        forping =  await client.shard.broadcastEval(`(this.ws.ping)`)
+    } else if (client.cluster) {
+        forcpu = await client.cluster.broadcastEval(`${await cpuUsageCompact(100)}`)
+        forram = await client.cluster.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`)
+        forping =  await client.cluster.broadcastEval(`(this.ws.ping)`)
+    }
+
     let forstatus = [];
-    for(let i = 0 ; i < client.cluster.count; i++){
+    for(let i = 0 ; i < client.cluster.count || client.shard.count; i++){
     if(forping[i]) {forstatus[i] =  "🟢"}; 
     eachstatus.push(`${await (forstatus[i] || "🔴") } Shard ${i} | ${await forping[i]} ms | ${await forcpu[i].toFixed(0)}% | ${await forram[i].toFixed(0)} (MB) `);
     } 
