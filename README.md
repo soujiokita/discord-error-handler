@@ -51,7 +51,8 @@ process.on('unhandledRejection', error => {
 # Get Status of each Shards
 ```
 //This Codes is just for sharded bots
-if(message.content === "!status") return client.handle.status(client , message);
+const status = await handle.status(client);
+console.log(status)
 ```
 # Whole Code
 ```js
