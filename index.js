@@ -108,58 +108,29 @@ class handling {
 }
 }
   /**
-  * @param {object} [message] - Discord message parameter to send the message;
-  * @param {object} [client] - Discord client, will save the data in a Map to prevent multiple fetches
+  * @param {object} [client] - Discord client for Broadcast Evaling + Getting Info
   */
-   async status(client,message) {
-
-    if (!message || !client) throw new TypeError("A client or message was not provided.");
+   async status(client) {
+    if (!client) throw new TypeError("A client was not provided");
     if(!client.shard || !client.cluster) return console.log("This funtion is currenlty just availble for Sharding!")
-    let eachstatus = [];
-    async function cpuUsageCompact(time) {
-    let start = [process.hrtime(),process.cpuUsage()];
-    await new Promise(r => setTimeout(r,time));
-    let elap = [process.hrtime(start[0]),process.cpuUsage(start[1])];
-    return 100 * (elap[1].user / 1000 + elap[1].system / 1000) / (elap[0][0] * 1000 + elap[0][1] / 1000000);
-    }
-    let forcpu;
-    let forram;
-    let forping;
-
-    if (client.shard) {
-        forcpu = await client.shard.broadcastEval(`${await cpuUsageCompact(100)}`)
-        forram = await client.shard.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`)
-        forping =  await client.shard.broadcastEval(`(this.ws.ping)`)
-    } else if (client.cluster) {
-        forcpu = await client.cluster.broadcastEval(`${await cpuUsageCompact(100)}`)
-        forram = await client.cluster.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`)
-        forping =  await client.cluster.broadcastEval(`(this.ws.ping)`)
-    }
-
-    let forstatus = [];
-    for(let i = 0 ; i < client.cluster.count || client.shard.count; i++){
-    if(forping[i]) {forstatus[i] =  "🟢"}; 
-    eachstatus.push(`${await (forstatus[i] || "🔴") } Shard ${i} | ${await forping[i]} ms | ${await forcpu[i].toFixed(0)}% | ${await forram[i].toFixed(0)} (MB) `);
-    } 
-  
-      let status = new Discord.MessageEmbed();
-      status.addField("Shard Name       |      Ping    |    CPU    |    Ram " ,"```" + eachstatus.join("\n") +"```")
-      status.setFooter("Requested by: " + message.author.tag , message.author.displayAvatarURL());
-      status.setTimestamp();
-      status.setColor("YELLOW");
-      message.channel.send({embed: status})
-      /*
-    let forcpu = await client.shard.broadcastEval(`if(this.shard.ids.includes(${i})){process.cpuUsage()}`)
-    let fortime = await client.shard.broadcastEval(`if(this.shard.ids.includes(${i})){ process.hrtime()}`)
-    let elapsedCPU = await client.shard.broadcastEval(`if(this.shard.ids.includes(${i})){process.cpuUsage(${forcpu[0]})}`)
-    let elapsedTime = await client.shard.broadcastEval(`if(this.shard.ids.includes(${i})){ process.hrtime(${fortime[0]})}`)
-    console.log(elapsedCPU);
-    console.log(elapsedTime);
     
-    let milliseconds = elapsedTime[0][0] * 1000 + elapsedTime[0][1] / 1000000;
-    let timings = elapsedCPU[0].user / 1000 + elapsedCPU[0].system / 1000;
-    let percentage = 100 * timings / milliseconds;*/
-  
+    async function cpuUsageCompact(time) {
+      let start = [process.hrtime(),process.cpuUsage()];
+      await new Promise(r => setTimeout(r,time));
+      let elap = [process.hrtime(start[0]),process.cpuUsage(start[1])];
+      return 100 * (elap[1].user / 1000 + elap[1].system / 1000) / (elap[0][0] * 1000 + elap[0][1] / 1000000);
+    }
+    //Client Instance: 
+    const instance = (client.shard ? client.shard : client.cluster);
+    let forcpu = await instance.broadcastEval(`${await cpuUsageCompact(100)}`);
+    let forram = await instance.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`);
+    let forping = await instance.broadcastEval(`(this.ws.ping)`);
+      
+    let eachstatus = [];
+    for(let i = 0 ; i < instance.count; i++){
+      eachstatus.push({id: i, online: (forping[i] ? true : false) ,ping: forping[i], cpu: forcpu[i].toFixed(2), ram: forram[i].toFixed(2)})
+    } 
+    return eachstatus;
   }
 
 }
