@@ -112,7 +112,7 @@ class handling {
   */
    async status(client) {
     if (!client) throw new TypeError("A client was not provided");
-    if(!client.shard || !client.cluster) return console.log("This funtion is currenlty just availble for Sharding!")
+    if(!client.shard && !client.cluster) return console.log("This function is currenlty just availble for Sharding/Clustering!")
     
     async function cpuUsageCompact(time) {
       let start = [process.hrtime(),process.cpuUsage()];
