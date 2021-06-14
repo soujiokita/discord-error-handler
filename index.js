@@ -125,10 +125,10 @@ class handling {
     let forcpu = await instance.broadcastEval(`${await cpuUsageCompact(100)}`);
     let forram = await instance.broadcastEval(`(process.memoryUsage().rss / 1024 / 1024)`);
     let forping = await instance.broadcastEval(`(this.ws.ping)`);
-      
+    let forstatus =   await instance.broadcastEval(`(this.ws.status)`);
     let eachstatus = [];
     for(let i = 0 ; i < instance.count; i++){
-      eachstatus.push({id: i, online: (forping[i] ? true : false) ,ping: forping[i], cpu: forcpu[i].toFixed(2), ram: forram[i].toFixed(2)})
+      eachstatus.push({id: i, online: (forping[i] ? true : false) ,ping: forping[i], cpu: forcpu[i].toFixed(2), ram: forram[i].toFixed(2) , status: forstatus[i]})
     } 
     return eachstatus;
   }
