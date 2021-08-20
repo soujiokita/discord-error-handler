@@ -9,7 +9,11 @@ A lightweight managing package,which catches and save discord errors and even se
 # Download
 You can download it from npm:
 ```cli
+Discord.js v13 Users:
 npm i discord-error-handler
+
+Discord.js v12  and below:
+npm i discord-error-handler@1.3
 ```
 
 # Setting Up

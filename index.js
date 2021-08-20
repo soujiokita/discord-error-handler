@@ -2,7 +2,7 @@ const Discord = require("discord.js")
 class handling {
   constructor(client, options = {}){
     this.client = client;
-    this.webhook = (options.webhook? new Discord.WebhookClient(options.webhook.id, options.webhook.token) : false);
+    this.webhook = (options.webhook? new Discord.WebhookClient(options.webhook) : false);
     this.stats = options.stats || false;
     if(!this.client) throw new Error('Discord_Client_not_provided', 'missing', 'specified.');
     if(!this.webhook) throw new Error('Webhook_Token_or_Id_not_provided', 'missing', 'specified.');
