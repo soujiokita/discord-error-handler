@@ -101,7 +101,7 @@ class handling {
     report.setFooter("Requested by: " + message.author.tag , message.author.displayAvatarURL());
     report.setTimestamp();
     report.setColor("YELLOW");
-    message.channel.send({embed: report});
+    message.channel.send({embeds: [report]});
     return;
 }catch(error){
   console.log(error);
