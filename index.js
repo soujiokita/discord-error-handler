@@ -52,7 +52,7 @@ class handling {
      }
 
       let log = new  Discord.MessageEmbed();
-      log.setTitle("New Error Entcounterd!")
+      log.setTitle("New Error Encountered!")
       if(msg){
        log.addField(`On message in ${guildId}:` ,"```" +  msg +"```")
       }
