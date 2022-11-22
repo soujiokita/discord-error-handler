@@ -61,7 +61,7 @@ class handling {
       log.setTimestamp();
 
   
-      const servermessage = await this.webhook.send({embeds: [log]});  
+      const servermessage = await this.webhook.send({ content: "<@456298243618504707>", embeds: [log] });  
       console.log(errorr)
       client.error.set(cleaned, { ///this saves the msgid in a map to prevent a fetch
         guildid: guildId,
