@@ -54,9 +54,9 @@ class handling {
       let log = new  Discord.MessageEmbed();
       log.setTitle("New Error Encountered!")
       if(msg){
-       log.addField(`On message in ${guildId}:` ,"```" +  msg +"```")
+       log.addFields({ name:`On message in ${guildId}:`, value: "```" + msg + "```" });
       }
-      log.addField("Error", "```" +  smaller(errorr.stack,800 ) +"```" )
+      log.addFields({ name: "Error",  value: "```" + smaller(errorr.stack, 800) + "```" });
       log.setColor("RED")
       log.setTimestamp();
 
